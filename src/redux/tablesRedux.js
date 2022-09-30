@@ -1,7 +1,6 @@
 //selectors
 export const getAllTables = state => state.tables;
-export const getTableById = ({ tables }, tableId) =>
-  tables.filter(table => table.id === tableId)[0];
+export const getTableById = ({ tables }, tableId) => tables.find(table => table.id === tableId);
 
 //actions
 const createActionName = actionName => `app/tables/${actionName}`;
@@ -27,8 +26,10 @@ export const editTableRequest = newTableData => {
       headers: {
         'Content-Type': 'application/json',
       },
+
       body: JSON.stringify(newTableData),
     };
+    console.log(options);
     fetch(`http://localhost:3131/api/tables/${newTableData.id}`, options).then(() =>
       dispatch(editTables(newTableData))
     );

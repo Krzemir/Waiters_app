@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import { getTableById, editTableRequest } from '../../redux/tablesRedux';
 import { useSelector, useDispatch } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 const TableForm = () => {
-  const { id } = useParams();
-  const tableData = useSelector(state => getTableById(state, id));
+  const { tableId } = useParams();
+
+  const tableData = useSelector(state => getTableById(state, tableId));
+
   const navigate = useNavigate();
   const {
     register,
@@ -15,19 +17,33 @@ const TableForm = () => {
     formState: { errors },
   } = useForm();
 
-  const [status, setStatus] = useState(tableData.status);
-  const [peopleAmount, setPeopleAmount] = useState(tableData.peopleAmount);
-  const [maxPeopleAmount, setMaxPeopleAmount] = useState(tableData.maxPeopleAmount);
-  const [bill, setBill] = useState(tableData.bill);
+  const [status, setStatus] = useState('');
+  const [peopleAmount, setPeopleAmount] = useState(0);
+  const [maxPeopleAmount, setMaxPeopleAmount] = useState(0);
+  const [bill, setBill] = useState(0);
+
+  useEffect(() => {
+    if (tableData) {
+      setStatus(tableData.status);
+      setPeopleAmount(tableData.peopleAmount);
+      setMaxPeopleAmount(tableData.maxPeopleAmount);
+      setBill(tableData.bill);
+    }
+  }, [tableData]);
 
   const dispatch = useDispatch();
 
-  console.log('people', maxPeopleAmount);
-
   const handleSubmit = e => {
-    dispatch(editTableRequest({ status, peopleAmount, maxPeopleAmount, bill, id }));
+    dispatch(editTableRequest({ status, peopleAmount, maxPeopleAmount, bill, id: tableId }));
     navigate('/');
   };
+
+  if (!tableData)
+    return (
+      <>
+        <p>Loading...</p>
+      </>
+    );
 
   return (
     <Form onSubmit={validate(handleSubmit)}>
